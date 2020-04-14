@@ -6,27 +6,21 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 
+const NAME = 'project'
+const url = 'http://cfw-takehome.developers.workers.dev/api/variants'
+
 async function handleRequest(request) {
-  
-  const NAME = 'project'
-  const url = 'http://cfw-takehome.developers.workers.dev/api/variants'
   var result
-  var addr = [ ]
-  await fetch(url).then((resp) => resp.json()) // Transform the data into json
-  .then(function(data) {
-    // console.log(data)
+  var addrs = [ ]
+  await fetch(url).then((resp) => resp.json()).then(function(data) {
     result = data['variants']
     // console.log(result)
-    addr.push(result[0])
-    addr.push(result[1])
-    console.log(addr)
+    addrs.push(result[0])
+    addrs.push(result[1])
   })
-  const TEST_RESPONSE = new Response('Hello worker1!', {
-      headers: { 'content-type': 'text/plain' },
-    })
-  const CONTROL_RESPONSE = new Response('Hello worker2!', {
-      headers: { 'content-type': 'text/plain' },
-    })
+  const TEST_RESPONSE = (await fetch(addrs[0]))
+  const CONTROL_RESPONSE = (await fetch(addrs[1]))
+
   const cookie = request.headers.get('cookie')
   if (cookie && cookie.includes(`${NAME}=control`)) {
     return CONTROL_RESPONSE
@@ -37,9 +31,9 @@ async function handleRequest(request) {
   else {
     let group = Math.random() < 0.5 ? 'test' : 'control' 
     let response = group === 'control' ? CONTROL_RESPONSE : TEST_RESPONSE
-    response.headers.append('Set-Cookie', `${NAME}=${group}; path=/`)
-    return response
+    const init = {
+      headers: { 'Set-Cookie': `${NAME}=${group}; path=/; max-age=31536000` },
+    }
+    return new Response(response.body,init)
   }
-
-  
 }
