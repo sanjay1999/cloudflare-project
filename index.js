@@ -8,7 +8,19 @@ addEventListener('fetch', event => {
 
 async function handleRequest(request) {
   
-  const NAME = 'experiment-0'
+  const NAME = 'project'
+  const url = 'http://cfw-takehome.developers.workers.dev/api/variants'
+  var result
+  var addr = [ ]
+  await fetch(url).then((resp) => resp.json()) // Transform the data into json
+  .then(function(data) {
+    // console.log(data)
+    result = data['variants']
+    // console.log(result)
+    addr.push(result[0])
+    addr.push(result[1])
+    console.log(addr)
+  })
   const TEST_RESPONSE = new Response('Hello worker1!', {
       headers: { 'content-type': 'text/plain' },
     })
@@ -28,5 +40,6 @@ async function handleRequest(request) {
     response.headers.append('Set-Cookie', `${NAME}=${group}; path=/`)
     return response
   }
+
   
 }
