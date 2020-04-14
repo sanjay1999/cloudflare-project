@@ -6,3 +6,6 @@
 - Distributing requests between variants
 - Used HTMLRewriter API to customize the reponse page   
 - Used Cookies to make for persisting the URL  
+
+#### Project Deployed at: https://project.amblygon.workers.dev/
+#### Github Repo: https://github.com/sanjay1999/cloudflare-project
