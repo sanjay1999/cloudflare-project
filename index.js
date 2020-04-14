@@ -6,21 +6,41 @@ addEventListener('fetch', event => {
  * @param {Request} request
  */
 
+
+const REWRITER1 = new HTMLRewriter()
+.on('title', { element:  e => e.setInnerContent('Site #1')} )
+.on('h1#title', { element:  e => e.setInnerContent('Hello World! (SITE #1)')} )
+.on('p#description', { element:  e => e.setInnerContent('Stay home, stay safe during the COVID-19 pandemic')} )
+.on('a#url', { element:  e => e.setInnerContent('Head over to my project GitHub repo')} )
+.on('a', { element:  e => e.setAttribute('href','https://github.com/sanjay1999/cloudflare-project')} )
+
+const REWRITER2 = new HTMLRewriter()
+.on('title', { element:  e => e.setInnerContent('Site #2')} )
+.on('h1#title', { element:  e => e.setInnerContent('Hello World! (SITE #2)')} )
+.on('p#description', { element:  e => e.setInnerContent('Stay home, stay safe during the COVID-19 pandemic')} )
+.on('a#url', { element:  e => e.setInnerContent('Head over to my project GitHub repo')} )
+.on('a', { element:  e => e.setAttribute('href','https://github.com/sanjay1999/cloudflare-project')} )
+
 const NAME = 'project'
 const url = 'http://cfw-takehome.developers.workers.dev/api/variants'
 
 async function handleRequest(request) {
+
   var result
   var addrs = [ ]
+
   await fetch(url).then((resp) => resp.json()).then(function(data) {
     result = data['variants']
     // console.log(result)
     addrs.push(result[0])
     addrs.push(result[1])
   })
-  const TEST_RESPONSE = (await fetch(addrs[0]))
-  const CONTROL_RESPONSE = (await fetch(addrs[1]))
 
+
+  const TEST_RESPONSE = REWRITER1.transform(await fetch(addrs[0]))
+  const CONTROL_RESPONSE = REWRITER2.transform(await fetch(addrs[1]))
+
+  
   const cookie = request.headers.get('cookie')
   if (cookie && cookie.includes(`${NAME}=control`)) {
     return CONTROL_RESPONSE
