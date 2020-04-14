@@ -2,11 +2,11 @@ addEventListener('fetch', event => {
   event.respondWith(handleRequest(event.request))
 })
 /**
- * Respond with hello worker text
+ * 
  * @param {Request} request
  */
 
-
+//HTMLRewriter for Site#1
 const REWRITER1 = new HTMLRewriter()
 .on('title', { element:  e => e.setInnerContent('Site #1')} )
 .on('h1#title', { element:  e => e.setInnerContent('Hello World! (SITE #1)')} )
@@ -14,6 +14,7 @@ const REWRITER1 = new HTMLRewriter()
 .on('a#url', { element:  e => e.setInnerContent('Head over to my project GitHub repo')} )
 .on('a', { element:  e => e.setAttribute('href','https://github.com/sanjay1999/cloudflare-project')} )
 
+//HTMLRewriter for Site#2
 const REWRITER2 = new HTMLRewriter()
 .on('title', { element:  e => e.setInnerContent('Site #2')} )
 .on('h1#title', { element:  e => e.setInnerContent('Hello World! (SITE #2)')} )
@@ -29,6 +30,7 @@ async function handleRequest(request) {
   var result
   var addrs = [ ]
 
+  //Fetch URL and store in addrs array
   await fetch(url).then((resp) => resp.json()).then(function(data) {
     result = data['variants']
     // console.log(result)
@@ -37,10 +39,11 @@ async function handleRequest(request) {
   })
 
 
+  //Fetch Variant1 and Variant2
   const TEST_RESPONSE = REWRITER1.transform(await fetch(addrs[0]))
   const CONTROL_RESPONSE = REWRITER2.transform(await fetch(addrs[1]))
 
-  
+  //Request distribution and cookie storage implementation
   const cookie = request.headers.get('cookie')
   if (cookie && cookie.includes(`${NAME}=control`)) {
     return CONTROL_RESPONSE
